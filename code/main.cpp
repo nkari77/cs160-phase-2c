@@ -10,6 +10,7 @@
 #include "bfs_push_sparse_atomic.h"
 #include "sssp_push_sparse_atomic.h"
 #include "cc_push_sparse_atomic.h"
+#include "bfs_bonus.h"
 
 using namespace std;
 using Clock = chrono::high_resolution_clock;
@@ -55,7 +56,6 @@ int main() {
     CsrGraph g = LoadGraph("soc-LiveJournal1-weighted.txt");
     cout << "loaded: " << g.num_vertices << " vertices" << endl;
 
-    // load answer files
     vector<int> ref_bfs(g.num_vertices, -1);
     vector<long long> ref_sssp(g.num_vertices, -1);
     vector<int> ref_cc(g.num_vertices, 0);
@@ -109,7 +109,14 @@ int main() {
     cout << "CC sparse atomic (4t): " << t << " sec" << endl;
     verify_cc("CC sparse atomic", ref_cc, cc_s, g.num_vertices);
 
-    // ===== roadNet-CA =====
+    t0 = Clock::now();
+    BfsBonus bfs_b(g.num_vertices, 0, 4);
+    bfs_b.Run(g);
+    t = Sec(Clock::now() - t0).count();
+    cout << "BFS bonus direction-opt (4t): " << t << " sec" << endl;
+    verify_bfs("BFS bonus", ref_bfs, bfs_b, g.num_vertices);
+
+    // roadNet-CA
     CsrGraph r = LoadGraphUndirected("roadNet-CA.txt");
     cout << "\nroadNet-CA loaded: " << r.num_vertices << " vertices" << endl;
 
@@ -148,6 +155,12 @@ int main() {
     r_cc_s.Run(r);
     t = Sec(Clock::now() - t0).count();
     cout << "roadNet CC sparse atomic (4t): " << t << " sec" << endl;
+
+    t0 = Clock::now();
+    BfsBonus r_bfs_b(r.num_vertices, 0, 4);
+    r_bfs_b.Run(r);
+    t = Sec(Clock::now() - t0).count();
+    cout << "roadNet BFS bonus direction-opt (4t): " << t << " sec" << endl;
 
     return 0;
 }

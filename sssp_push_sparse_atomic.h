@@ -24,8 +24,10 @@ public:
     void Run(const CsrGraph& g) {
         vector<uint32_t> cur = {0};
         vector<vector<uint32_t>> next_t(nthreads);
+        int round = 0;
 
         while (!cur.empty()) {
+            cout << "SSSP sparse round " << round++ << " |F|=" << cur.size() << endl;
             for (auto& buf : next_t) buf.clear();
 
             uint32_t sz = cur.size();
@@ -51,7 +53,6 @@ public:
                             long long cur_val = dist[v].load();
                             while (candidate < cur_val) {
                                 if (dist[v].compare_exchange_weak(cur_val, candidate)) {
-                                    // only one thread appends v
                                     int expected = 0;
                                     if (in_next[v].compare_exchange_strong(expected, 1))
                                         next_t[t].push_back(v);
@@ -64,12 +65,10 @@ public:
             }
             for (auto& th : threads) th.join();
 
-            // reset in_next for next_t vertices
             for (auto& buf : next_t)
                 for (uint32_t v : buf)
                     in_next[v].store(0);
 
-            // concat next_t into cur
             uint32_t total = 0;
             for (auto& buf : next_t) total += buf.size();
             cur.clear();

@@ -20,14 +20,15 @@ public:
     }
 
     void Run(const CsrGraph& g) {
-        // all vertices start in frontier for CC
         vector<uint32_t> cur;
         cur.resize(g.num_vertices);
         for (uint32_t i = 0; i < g.num_vertices; i++) cur[i] = i;
 
         vector<vector<uint32_t>> next_t(nthreads);
+        int round = 0;
 
         while (!cur.empty()) {
+            cout << "CC sparse round " << round++ << " |F|=" << cur.size() << endl;
             for (auto& buf : next_t) buf.clear();
 
             uint32_t sz = cur.size();
@@ -65,12 +66,10 @@ public:
             }
             for (auto& th : threads) th.join();
 
-            // reset in_next for next_t vertices
             for (auto& buf : next_t)
                 for (uint32_t v : buf)
                     in_next[v].store(0);
 
-            // concat next_t into cur
             uint32_t total = 0;
             for (auto& buf : next_t) total += buf.size();
             cur.clear();

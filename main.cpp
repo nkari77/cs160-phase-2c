@@ -5,6 +5,7 @@
 #include "bfs_push_dense_atomic.h"
 #include "sssp_push_dense_atomic.h"
 #include "cc_push_dense_atomic.h"
+#include "bfs_push_sparse_atomic.h"
 
 using namespace std;
 using Clock = chrono::high_resolution_clock;
@@ -34,6 +35,13 @@ int main() {
     t = Sec(Clock::now() - t0).count();
     cout << "CC dense atomic (4t): " << t << " sec" << endl;
     cout << "CC vertex=50, comp=" << cc.component(50) << endl;
+
+    t0 = Clock::now();
+    BfsPushSparseAtomic bfs_s(g.num_vertices, 0, 4);
+    bfs_s.Run(g);
+    t = Sec(Clock::now() - t0).count();
+    cout << "BFS sparse atomic (4t): " << t << " sec" << endl;
+    cout << "BFS sparse source=0 -> vertex=50, hops=" << bfs_s.distance(50) << endl;
 
     return 0;
 }

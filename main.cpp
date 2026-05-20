@@ -1,0 +1,24 @@
+#include <iostream>
+#include <chrono>
+#include "graph.h"
+#include "bsp.h"
+#include "bfs_push_dense_atomic.h"
+
+using namespace std;
+using Clock = chrono::high_resolution_clock;
+using Sec = chrono::duration<double>;
+
+int main() {
+    CsrGraph g = LoadGraph("soc-LiveJournal1-weighted.txt");
+    cout << "loaded: " << g.num_vertices << " vertices" << endl;
+
+    auto t0 = Clock::now();
+    BfsPushDenseAtomic bfs(g.num_vertices, 0, 4);
+    BspParallel(g, bfs, 4);
+    double t = Sec(Clock::now() - t0).count();
+
+    cout << "BFS dense atomic (4t): " << t << " sec" << endl;
+    cout << "BFS source=0 -> vertex=50, hops=" << bfs.distance(50) << endl;
+
+    return 0;
+}

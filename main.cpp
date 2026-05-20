@@ -3,6 +3,8 @@
 #include "graph.h"
 #include "bsp.h"
 #include "bfs_push_dense_atomic.h"
+#include "sssp_push_dense_atomic.h"
+#include "cc_push_dense_atomic.h"
 
 using namespace std;
 using Clock = chrono::high_resolution_clock;
@@ -16,9 +18,22 @@ int main() {
     BfsPushDenseAtomic bfs(g.num_vertices, 0, 4);
     BspParallel(g, bfs, 4);
     double t = Sec(Clock::now() - t0).count();
-
     cout << "BFS dense atomic (4t): " << t << " sec" << endl;
     cout << "BFS source=0 -> vertex=50, hops=" << bfs.distance(50) << endl;
+
+    t0 = Clock::now();
+    SsspPushDenseAtomic sssp(g.num_vertices, 0, 4);
+    BspParallel(g, sssp, 4);
+    t = Sec(Clock::now() - t0).count();
+    cout << "SSSP dense atomic (4t): " << t << " sec" << endl;
+    cout << "SSSP source=0 -> vertex=50, dist=" << sssp.distance(50) << endl;
+
+    t0 = Clock::now();
+    CcPushDenseAtomic cc(g.num_vertices, 4);
+    BspParallel(g, cc, 4);
+    t = Sec(Clock::now() - t0).count();
+    cout << "CC dense atomic (4t): " << t << " sec" << endl;
+    cout << "CC vertex=50, comp=" << cc.component(50) << endl;
 
     return 0;
 }

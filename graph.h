@@ -19,3 +19,4 @@ struct CsrGraph {
 };
 
 CsrGraph LoadGraph(const char* filename);
+CsrGraph LoadGraphUndirected(const char* filename);

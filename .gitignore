@@ -2,3 +2,4 @@ main
 *.o
 soc-LiveJournal1-weighted.txt
 roadNet-CA.txt
+roadNet-CA.txt.gz

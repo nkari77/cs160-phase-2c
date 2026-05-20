@@ -109,5 +109,45 @@ int main() {
     cout << "CC sparse atomic (4t): " << t << " sec" << endl;
     verify_cc("CC sparse atomic", ref_cc, cc_s, g.num_vertices);
 
+    // ===== roadNet-CA =====
+    CsrGraph r = LoadGraphUndirected("roadNet-CA.txt");
+    cout << "\nroadNet-CA loaded: " << r.num_vertices << " vertices" << endl;
+
+    t0 = Clock::now();
+    BfsPushDenseAtomic r_bfs(r.num_vertices, 0, 4);
+    BspParallel(r, r_bfs, 4);
+    t = Sec(Clock::now() - t0).count();
+    cout << "roadNet BFS dense atomic (4t): " << t << " sec" << endl;
+
+    t0 = Clock::now();
+    SsspPushDenseAtomic r_sssp(r.num_vertices, 0, 4);
+    BspParallel(r, r_sssp, 4);
+    t = Sec(Clock::now() - t0).count();
+    cout << "roadNet SSSP dense atomic (4t): " << t << " sec" << endl;
+
+    t0 = Clock::now();
+    CcPushDenseAtomic r_cc(r.num_vertices, 4);
+    BspParallel(r, r_cc, 4);
+    t = Sec(Clock::now() - t0).count();
+    cout << "roadNet CC dense atomic (4t): " << t << " sec" << endl;
+
+    t0 = Clock::now();
+    BfsPushSparseAtomic r_bfs_s(r.num_vertices, 0, 4);
+    r_bfs_s.Run(r);
+    t = Sec(Clock::now() - t0).count();
+    cout << "roadNet BFS sparse atomic (4t): " << t << " sec" << endl;
+
+    t0 = Clock::now();
+    SsspPushSparseAtomic r_sssp_s(r.num_vertices, 0, 4);
+    r_sssp_s.Run(r);
+    t = Sec(Clock::now() - t0).count();
+    cout << "roadNet SSSP sparse atomic (4t): " << t << " sec" << endl;
+
+    t0 = Clock::now();
+    CcPushSparseAtomic r_cc_s(r.num_vertices, 4);
+    r_cc_s.Run(r);
+    t = Sec(Clock::now() - t0).count();
+    cout << "roadNet CC sparse atomic (4t): " << t << " sec" << endl;
+
     return 0;
 }
